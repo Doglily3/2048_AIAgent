@@ -50,27 +50,24 @@ class IntelligentAgent(BaseAI):
     def calculate_monotonicity(self, grid):
         # 计算单调性分数
         monotonicity_score = 0
-        
-        # 遍历行和列，分别计算单调性
         for i in range(4):
-            row_score = sum(
-                (grid.map[i][j-1] - grid.map[i][j]) 
-                if grid.map[i][j-1] > grid.map[i][j] 
-                else (grid.map[i][j] - grid.map[i][j-1]) * -1
-                for j in range(1, 4)
-            )
-            
-            col_score = sum(
-                (grid.map[j-1][i] - grid.map[j][i]) 
-                if grid.map[j-1][i] > grid.map[j][i] 
-                else (grid.map[j][i] - grid.map[j-1][i]) * -1
-                for j in range(1, 4)
-            )
+            row_score = 0
+            col_score = 0
+            for j in range(1, 4):
+                # For rows
+                if grid.map[i][j-1] > grid.map[i][j]:
+                    row_score += (grid.map[i][j-1] - grid.map[i][j])
+                else:
+                    row_score -= (grid.map[i][j] - grid.map[i][j-1])
+                
+                # For columns
+                if grid.map[j-1][i] > grid.map[j][i]:
+                    col_score += (grid.map[j-1][i] - grid.map[j][i])
+                else:
+                    col_score -= (grid.map[j][i] - grid.map[j-1][i])
             
             monotonicity_score += row_score + col_score
-        
         return monotonicity_score
-
 
     def count_merges(self, grid):
         # 计算可能的合并次数
@@ -94,7 +91,7 @@ class IntelligentAgent(BaseAI):
                     smoothness_score -= abs(grid.map[x][y] - grid.map[x][y+1])
         return smoothness_score
     
-
+    
     def expectiminimax(self, grid, depth, alpha, beta, isPlayerTurn):
         # 实现期望极小极大算法
         if depth == 0 or not grid.canMove():
